@@ -1,0 +1,11 @@
+browser:
+  name: CHROME
+
+wait:
+  defaultTimeoutSeconds: 12
+  shortTimeoutSeconds: 3
+  longTimeoutSeconds: 30
+
+log:
+  path: ./target/
+  name: Console.log

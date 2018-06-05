@@ -1,0 +1,87 @@
+
+group 'booking'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output +
+                    sourceSets.test.output
+        }
+    }
+}
+
+bootRepackage.enabled = false
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    ignoreFailures = true
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging.showStandardStreams = true
+
+    // set heap size for the test JVM(s)
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
+
+    // listen to events in the test execution lifecycle
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    reports.junitXml.enabled = false
+    reports.html.enabled = false
+}
+
+dependencyManagement {
+    dependencies {
+        dependency "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+        dependency "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+        dependency "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+        dependency "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+        dependency "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+        dependency "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    }
+}
+
+dependencies {
+    compile "org.projectlombok:lombok:1.16.18"
+
+    compile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+    compile group: 'io.cucumber', name: 'cucumber-jvm', version: "$cucumberVersion"
+    compile group: 'io.cucumber', name: 'cucumber-junit', version: "$cucumberVersion"
+    compile group: 'io.cucumber', name: 'cucumber-core', version: "$cucumberVersion"
+    compile group: 'io.cucumber', name: 'cucumber-java', version: "$cucumberVersion"
+    compile group: 'io.cucumber', name: 'cucumber-testng', version: "$cucumberVersion"
+    compile group: 'io.cucumber', name: 'cucumber-spring', version: "$cucumberVersion"
+    compile "io.github.bonigarcia:webdrivermanager:$webdrivermanagerVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+    testCompile group: 'io.cucumber', name: 'cucumber-testng', version: "$cucumberVersion"
+}
